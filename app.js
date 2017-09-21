@@ -13,12 +13,15 @@ const NUM_REQUESTS = 3;
 
 // This will take a bit of time, and will be called asynchronously...
 function randomHTTPRequest (input1, input2) {
+	console.log('Request Number: ' + input1.toString());
 	const URL = API_URL + '?' + FIRST_PARAM + input1.toString() + '&' + SECOND_PARAM + input2.toString();
 	request(URL, function (error, response, body) {
 			console.log(body);
 		});
 }
 
+// Essentially the same function as randomHTTPRequest, but it returns it as a promise
+// with the reject & resolve handled in its callback.
 function randomHTTPRequestWithPromise (input1, input2) {
 	const URL = API_URL + '?' + FIRST_PARAM + input1.toString() + '&' + SECOND_PARAM + input2.toString();
 	return new Promise(function (resolve, reject) {
@@ -41,7 +44,6 @@ app.get('/', function (req, res) {
 	res.send('Hello world!');
 	// This won't work. The request will take time, so it'll happen after all the logging to console is done
 	for (var i = 1; i <= NUM_REQUESTS; i++) {
-		console.log('Request Number: ' + i.toString());
 		randomHTTPRequest(i, i);
 	}
 
@@ -52,6 +54,10 @@ app.get('/', function (req, res) {
 		for (var i = 1; i <= NUM_REQUESTS; i++) {
 			promises[i] = randomHTTPRequestWithPromise(i, i);
 		}
+
+		// Up until here, it's been a very similar process, but now we need to resolve promises
+		
+		// Promise.all ensures that all promises in the array are executed in order
 		Promise.all(promises).then(function (data) {
 			data.forEach(function (quote) {
 				if (quote != null) {
